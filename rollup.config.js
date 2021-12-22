@@ -2,10 +2,11 @@ import path from 'path';
 
 import { babel } from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
-import nodeResolve from '@rollup/plugin-node-resolve'; // eslint-disable-line import/no-named-as-default
-import { terser } from 'rollup-plugin-terser';
+import { nodeResolve } from '@rollup/plugin-node-resolve'; // eslint-disable-line import/namespace
 import typescript from '@rollup/plugin-typescript';
 import dts from 'rollup-plugin-dts';
+import { terser } from 'rollup-plugin-terser';
+
 import pkg from './package.json';
 
 const resolve = (fp) => path.resolve(__dirname, fp);
@@ -63,7 +64,7 @@ export default [
 			banner,
 			file: pkg.browser,
 			format: 'umd',
-			name: 'http-factory'
+			name: pkg.name
 		},
 		plugins: [...pluginsBase]
 	},
@@ -75,7 +76,7 @@ export default [
 			banner,
 			file: pkg.browser.replace(/\.js$/, '.min.js'),
 			format: 'umd',
-			name: 'http-factory'
+			name: pkg.name
 		},
 		plugins: [...pluginsBase, terser()]
 	},

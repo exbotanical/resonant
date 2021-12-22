@@ -1,94 +1,143 @@
-/**
- * The following API was inspired by Vue 3's reactivity system
- */
+import { isObject } from './utils';
 
-type IEffectFunction = () => void;
-
-type IDeps = Set<IEffectFunction>;
-type ITargetMap = WeakMap<any, IDepsMap>;
-type IDepsMap = Map<PropertyKey, IDeps>;
-
-let activeEffect: (() => void) | null = null;
-let isEffectRunning = false;
-const targetMap: ITargetMap = new WeakMap();
-
-export function effect(eff: () => void) {
-	activeEffect = eff;
-
-	isEffectRunning = true;
-	activeEffect();
-	isEffectRunning = false;
-
-	activeEffect = null;
+interface IEffectFunction {
+	(): void;
+	active: boolean;
+	handler: () => void;
 }
 
-export function reactive<T extends object>(target: T) {
-	return new Proxy<T>(target, {
-		get(target, key, receiver) {
-			const ret = Reflect.get(target, key, receiver);
+interface IRevokeHandler {
+	<T>(this: { target: T; revoke: () => void }): void;
+}
 
-			if (typeof ret === 'object') {
-				track(ret, key);
+type ITargetMap = WeakMap<any, IEffectsMap>;
+type IEffects = Set<IEffectFunction>;
+type IEffectsMap = Map<PropertyKey, IEffects>;
 
-				return reactive(ret);
+export const revokes = new WeakMap<
+	ReturnType<typeof reactive>,
+	IRevokeHandler
+>();
+
+const targetMap: ITargetMap = new WeakMap();
+const effectStack: IEffectFunction[] = [];
+
+export function effect(handler: () => void) {
+	const newEffect: IEffectFunction = () => {
+		run(newEffect);
+	};
+
+	newEffect.active = true;
+	newEffect.handler = handler;
+
+	newEffect();
+}
+
+export function reactive<T extends Record<any, any>>(target: T) {
+	const { proxy, revoke } = Proxy.revocable<T>(target, {
+		get(target, key, receiver): T {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			const result: T[keyof T] = Reflect.get(target, key, receiver);
+
+			// ensure we set nested objects and arrays and make them reactive
+			if (isObject(result)) {
+				track<T>(result, key);
+
+				return reactive(result);
 			}
 
-			track(target, key);
+			track<T>(target, key);
 
-			return ret;
+			return result;
 		},
 
 		set(target, key, value, receiver) {
 			const oldVal = target[key as keyof typeof target];
+			const hadKey = Reflect.has(target, key);
 			const result = Reflect.set(target, key, value, receiver);
 
-			if (result && oldVal !== value && !isEffectRunning) {
+			// replicate `length` accessors that trigger after setting an element
+			if (!hadKey && Array.isArray(target)) {
+				trigger(target, 'length');
+			} else if (!Object.is(oldVal, value)) {
 				trigger(target, key);
 			}
 
-			// TODO deduplicate
-			return Reflect.set(target, key, value, receiver);
+			return result;
 		}
 	});
+
+	revokes.set(
+		proxy,
+		revokeAndCleanup.bind({
+			revoke,
+			target
+		})
+	);
+
+	return proxy;
 }
 
-function track(target: any, key: PropertyKey) {
-	console.log('TRACK', { target, key });
+function run(effect: IEffectFunction) {
+	if (!effect.active) {
+		effect.handler();
+		return;
+	}
 
+	if (!effectStack.includes(effect)) {
+		// using try / catch here allows us to both return the effect handler's return value
+		// and subsequently pop it off the stack
+		try {
+			effectStack.push(effect);
+
+			effect.handler();
+			return;
+		} finally {
+			effectStack.pop();
+		}
+	}
+}
+
+function revokeAndCleanup<T>(this: { target: T; revoke: () => void }) {
+	const { target, revoke } = this;
+
+	const effectsMap = targetMap.get(target);
+	if (!effectsMap) return;
+
+	revoke();
+	effectsMap.clear();
+}
+
+function track<T>(target: T, key: PropertyKey) {
+	// grab the last run effect - this is the one in which the reactive property is being tracked
+	const activeEffect = effectStack[effectStack.length - 1];
+
+	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
 	if (activeEffect) {
-		let depsMap = targetMap.get(target);
-
-		if (!depsMap) {
-			targetMap.set(target, (depsMap = new Map()));
+		let effectsMap = targetMap.get(target);
+		if (!effectsMap) {
+			targetMap.set(target, (effectsMap = new Map() as IEffectsMap));
 		}
 
-		let dep = depsMap.get(key);
-		if (!dep) {
-			depsMap.set(key, (dep = new Set<IEffectFunction>()));
+		let effects = effectsMap.get(key);
+		if (!effects) {
+			effectsMap.set(key, (effects = new Set<IEffectFunction>()));
 		}
 
-		const ae = activeEffect;
-
-		dep.add(() => {
-			isEffectRunning = true;
-
-			ae();
-			isEffectRunning = false;
-		});
+		if (!effects.has(activeEffect)) {
+			effects.add(activeEffect);
+		}
 	}
 }
 
 function trigger(target: any, key: PropertyKey) {
-	console.log('TRIGGER', { target, key });
+	const effectsMap = targetMap.get(target);
 
-	if (isEffectRunning) return;
-
-	let depsMap = targetMap.get(target);
-	if (!depsMap) return;
-
-	let dep = depsMap.get(key);
-
-	if (dep) {
-		dep.forEach((effect) => effect());
+	if (!effectsMap) {
+		return;
 	}
+
+	effectsMap.get(key)?.forEach((effect) => {
+		effect();
+	});
 }

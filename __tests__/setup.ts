@@ -1,10 +1,4 @@
-beforeAll(() => {
-
-});
-
-beforeEach(() => {
-
-});
+/* eslint-disable jest/require-top-level-describe */
 
 afterEach(() => {
 	jest.clearAllMocks();

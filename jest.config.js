@@ -1,9 +1,7 @@
 module.exports = {
-	setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
-	testRegex: '.test.ts$',
-	coverageDirectory: './coverage',
 	collectCoverage: true,
 	collectCoverageFrom: ['src/**/*.ts'],
+	coverageDirectory: './coverage',
 	coverageThreshold: {
 		global: {
 			branches: 0,
@@ -13,5 +11,7 @@ module.exports = {
 		}
 	},
 	errorOnDeprecated: true,
+	setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
+	testRegex: '.test.ts$',
 	verbose: true
 };
