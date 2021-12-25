@@ -6,10 +6,6 @@ interface IEffectFunction {
 	handler: () => void;
 }
 
-interface IRevokeHandler {
-	<T>(this: { target: T; revoke: () => void }): void;
-}
-
 type ITargetMap = WeakMap<any, IEffectsMap>;
 type IEffects = Set<IEffectFunction>;
 type IEffectsMap = Map<PropertyKey, IEffects>;
@@ -18,10 +14,7 @@ type IEffectsMap = Map<PropertyKey, IEffects>;
  * A map of revoke handlers. Pass in a proxy reference to retrieve its corresponding handler.
  * @public
  */
-export const revokes = new WeakMap<
-	ReturnType<typeof resonant>,
-	IRevokeHandler
->();
+export const revokes = new WeakMap<ReturnType<typeof resonant>, () => void>();
 
 /**
  * A map of all tracked targets and their dependencies
@@ -61,6 +54,17 @@ export function effect(handler: () => void) {
  */
 export function resonant<T extends Record<any, any>>(target: T) {
 	const { proxy, revoke } = Proxy.revocable<T>(target, {
+		deleteProperty(target, key) {
+			const hadKey = Reflect.has(target, key);
+			const result = Reflect.deleteProperty(target, key);
+
+			if (hadKey) {
+				trigger(target, key);
+			}
+
+			return result;
+		},
+
 		get(target, key, receiver): T {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const result: T[keyof T] = Reflect.get(target, key, receiver);
@@ -111,6 +115,7 @@ export function resonant<T extends Record<any, any>>(target: T) {
  * @internal
  */
 function run(effect: IEffectFunction) {
+	/* istanbul ignore if */
 	if (!effect.active) {
 		effect.handler();
 		return;
@@ -141,6 +146,8 @@ function revokeAndCleanup<T>(this: { target: T; revoke: () => void }) {
 	revoke();
 
 	const effectsMap = targetMap.get(target);
+
+	/* istanbul ignore if */
 	if (!effectsMap) {
 		return;
 	}

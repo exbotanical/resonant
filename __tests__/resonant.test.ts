@@ -1,4 +1,4 @@
-import { resonant, effect } from '../src';
+import { resonant, effect, revokes } from '../src';
 
 import { forMocks } from './utils';
 
@@ -14,7 +14,7 @@ const update = () => {
 	r.c++;
 };
 
-describe('run effect', () => {
+describe('resonant', () => {
 	it('runs an effect when initialized, regardless of any dependencies', () => {
 		const mock = jest.fn();
 
@@ -410,4 +410,78 @@ describe('run effect', () => {
 		expect(mock).toHaveBeenCalledTimes(0);
 		expect(mock2).toHaveBeenCalledTimes(1);
 	});
+
+	it('revokes a resonant value', () => {
+		const mock = jest.fn();
+		const r = resonant({ x: 1, y: 1 });
+
+		effect(() => {
+			r.x;
+			mock();
+		});
+
+		r.x = 11;
+
+		const revoke = revokes.get(r);
+
+		revoke?.();
+
+		expect(() => {
+			r.x = 22;
+		}).toThrow("Cannot perform 'set' on a proxy that has been revoked");
+
+		expect(mock).toHaveBeenCalledTimes(2);
+	});
+
+	it('triggers when deleting reactive properties', () => {
+		const mock = jest.fn();
+		const r = resonant({
+			x: 1,
+			y: 1,
+			z: 1,
+			q: {
+				x: {
+					m: 1
+				}
+			}
+		});
+
+		effect(() => {
+			r.x + r.y + r.z + r.q.x.m;
+			mock();
+		});
+
+		expect(mock).toHaveBeenCalledTimes(1);
+
+		// @ts-expect-error
+		delete r.q.x.m;
+		// @ts-expect-error
+		delete r.q.x.m;
+
+		expect(mock).toHaveBeenCalledTimes(2);
+
+		const mock2 = jest.fn();
+		const r2 = resonant({
+			z: 1,
+			s: {
+				m: 1
+			}
+		});
+
+		effect(() => {
+			Object.keys(r2.s).length;
+			mock2();
+		});
+
+		expect(mock2).toHaveBeenCalledTimes(1);
+
+		// will NOT trigger, as `m` is not tracked
+		// this is a known limitation
+		// @ts-expect-error
+		delete r2.s.m;
+
+		expect(mock2).toHaveBeenCalledTimes(1);
+	});
+
+	it.todo('skips initial effect invocation if passed opts.lazy');
 });
