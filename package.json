@@ -1,24 +1,24 @@
 {
-  "name": "effect",
+  "name": "resonant",
   "version": "0.0.0-development",
   "description": "",
   "keywords": [],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MatthewZito/effect.git"
+    "url": "https://github.com/MatthewZito/resonant.git"
   },
   "author": "Matthew T Zito (goldmund)",
   "files": [
     "dist/"
   ],
   "exports": {
-    "require": "./dist/effect.cjs.js",
-    "import": "./dist/effect.es.js"
+    "require": "./dist/resonant.cjs.js",
+    "import": "./dist/resonant.es.js"
   },
-  "main": "./dist/effect.cjs.js",
-  "browser": "./dist/effect.umd.js",
-  "module": "./dist/effect.es.js",
+  "main": "./dist/resonant.cjs.js",
+  "browser": "./dist/resonant.umd.js",
+  "module": "./dist/resonant.es.js",
   "types": "dist/index.d.ts",
   "engines": {
     "node": ">= 10"
@@ -47,9 +47,9 @@
     ]
   },
   "bugs": {
-    "url": "https://github.com/MatthewZito/effect/issues"
+    "url": "https://github.com/MatthewZito/resonant/issues"
   },
-  "homepage": "https://github.com/MatthewZito/effect#readme",
+  "homepage": "https://github.com/MatthewZito/resonant#readme",
   "devDependencies": {
     "@babel/cli": "7.15.7",
     "@babel/core": "7.15.8",
@@ -62,7 +62,7 @@
     "@microsoft/api-extractor": "^7.10.4",
     "@rollup/plugin-babel": "5.3.0",
     "@rollup/plugin-commonjs": "21.0.1",
-    "@rollup/plugin-node-resolve": "13.0.6",
+    "@rollup/plugin-node-resolve": "13.1.1",
     "@rollup/plugin-typescript": "8.3.0",
     "@types/jest": "27.0.2",
     "cz-conventional-changelog": "^3.3.0",

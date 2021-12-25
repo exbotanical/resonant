@@ -14,14 +14,34 @@ type ITargetMap = WeakMap<any, IEffectsMap>;
 type IEffects = Set<IEffectFunction>;
 type IEffectsMap = Map<PropertyKey, IEffects>;
 
+/**
+ * A map of revoke handlers. Pass in a proxy reference to retrieve its corresponding handler.
+ * @public
+ */
 export const revokes = new WeakMap<
-	ReturnType<typeof reactive>,
+	ReturnType<typeof resonant>,
 	IRevokeHandler
 >();
 
+/**
+ * A map of all tracked targets and their dependencies
+ * @internal
+ */
 const targetMap: ITargetMap = new WeakMap();
+
+/**
+ * A stack for tracking active effects
+ * @internal
+ */
 const effectStack: IEffectFunction[] = [];
 
+/**
+ * Create a resonant effect. All get / set operations within the handler will be tracked.
+ * An effect is run upon initialization, and subsequent to any mutations to its dependencies.
+ * @param handler
+ *
+ * @public
+ */
 export function effect(handler: () => void) {
 	const newEffect: IEffectFunction = () => {
 		run(newEffect);
@@ -33,17 +53,23 @@ export function effect(handler: () => void) {
 	newEffect();
 }
 
-export function reactive<T extends Record<any, any>>(target: T) {
+/**
+ * Make an object resonant. All object properties will be eligible dependencies for an effect.
+ * @param target
+ *
+ * @public
+ */
+export function resonant<T extends Record<any, any>>(target: T) {
 	const { proxy, revoke } = Proxy.revocable<T>(target, {
 		get(target, key, receiver): T {
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 			const result: T[keyof T] = Reflect.get(target, key, receiver);
 
-			// ensure we set nested objects and arrays and make them reactive
+			// ensure we set nested objects and arrays and make them resonant
 			if (isObject(result)) {
 				track<T>(result, key);
 
-				return reactive(result);
+				return resonant(result);
 			}
 
 			track<T>(target, key);
@@ -78,6 +104,12 @@ export function reactive<T extends Record<any, any>>(target: T) {
 	return proxy;
 }
 
+/**
+ * Push the given effect onto the stack, run it, then pop it off
+ * @param effect
+ *
+ * @internal
+ */
 function run(effect: IEffectFunction) {
 	if (!effect.active) {
 		effect.handler();
@@ -98,18 +130,33 @@ function run(effect: IEffectFunction) {
 	}
 }
 
+/**
+ * Revoke the proxy and clear all effects
+ *
+ * @internal
+ */
 function revokeAndCleanup<T>(this: { target: T; revoke: () => void }) {
 	const { target, revoke } = this;
 
-	const effectsMap = targetMap.get(target);
-	if (!effectsMap) return;
-
 	revoke();
+
+	const effectsMap = targetMap.get(target);
+	if (!effectsMap) {
+		return;
+	}
+
 	effectsMap.clear();
 }
 
+/**
+ * For a given target, track the given key
+ * @param target
+ * @param key
+ *
+ * @internal
+ */
 function track<T>(target: T, key: PropertyKey) {
-	// grab the last run effect - this is the one in which the reactive property is being tracked
+	// grab the last run effect - this is the one in which the resonant property is being tracked
 	const activeEffect = effectStack[effectStack.length - 1];
 
 	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -130,6 +177,13 @@ function track<T>(target: T, key: PropertyKey) {
 	}
 }
 
+/**
+ * Trigger all effects for a given key of a given target
+ * @param target
+ * @param key
+ *
+ * @internal
+ */
 function trigger(target: any, key: PropertyKey) {
 	const effectsMap = targetMap.get(target);
 

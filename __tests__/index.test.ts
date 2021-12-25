@@ -1,8 +1,8 @@
-import { reactive, effect } from '../src';
+import { resonant, effect } from '../src';
 
-import { forMocks } from './util';
+import { forMocks } from './utils';
 
-const r = reactive({
+const r = resonant({
 	a: 1,
 	b: 2,
 	c: 3
@@ -22,7 +22,7 @@ describe('run effect', () => {
 		expect(mock).toHaveBeenCalledTimes(1);
 	});
 
-	it('reruns the effect when a reactive property dependency has been mutated', () => {
+	it('reruns the effect when a resonant property dependency has been mutated', () => {
 		const mock = jest.fn(() => {
 			r.a;
 		});
@@ -34,7 +34,7 @@ describe('run effect', () => {
 		expect(mock).toHaveBeenCalledTimes(2);
 	});
 
-	it('only runs effects which depend on a reactive property', () => {
+	it('only runs effects which depend on a resonant property', () => {
 		const mock = jest.fn(() => {});
 		const mock2 = jest.fn(() => {
 			r.a;
@@ -86,7 +86,7 @@ describe('run effect', () => {
 	});
 
 	it('triggers effects on nested object mutations', () => {
-		const r2 = reactive({
+		const r2 = resonant({
 			a: 1,
 			b: {
 				x: {
@@ -109,7 +109,7 @@ describe('run effect', () => {
 	});
 
 	it('tracks and runs multiple effects', () => {
-		const r1 = reactive({
+		const r1 = resonant({
 			x: 1,
 			y: 2,
 			z: {
@@ -118,7 +118,7 @@ describe('run effect', () => {
 			}
 		});
 
-		const r2 = reactive({
+		const r2 = resonant({
 			c: 3,
 			d: 4
 		});
@@ -175,7 +175,7 @@ describe('run effect', () => {
 		const mock1 = jest.fn();
 		const mock2 = jest.fn();
 
-		const r = reactive({
+		const r = resonant({
 			price: 1,
 			quantity: 2,
 			meta: {
@@ -243,10 +243,10 @@ describe('run effect', () => {
 		expect(total).toBe(19);
 	});
 
-	it('handles nested reactive properties', () => {
+	it('handles nested resonant properties', () => {
 		const mocks = Array.from({ length: 10 }, jest.fn);
 
-		const r = reactive({
+		const r = resonant({
 			a: false,
 			x: {
 				y: {
@@ -392,7 +392,7 @@ describe('run effect', () => {
 		const mock = jest.fn();
 		const mock2 = jest.fn();
 
-		const r = reactive({
+		const r = resonant({
 			x: 1,
 			y: 1
 		});
