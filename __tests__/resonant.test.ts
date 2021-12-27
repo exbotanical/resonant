@@ -1,6 +1,6 @@
 import { resonant, effect } from '../src';
 
-import { debug, forMocks } from './utils';
+import { forMocks } from './utils';
 
 const r = resonant({
 	a: 1,

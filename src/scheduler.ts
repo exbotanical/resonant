@@ -34,7 +34,7 @@ export function track<T>(target: T, key: PropertyKey) {
 	// grab the last run effect - this is the one in which the resonant property is being tracked
 	const activeEffect = effectStack[effectStack.length - 1];
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+	 
 	if (activeEffect) {
 		let effectsMap = targetMap.get(target);
 		if (!effectsMap) {

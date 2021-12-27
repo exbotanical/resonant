@@ -1,4 +1,4 @@
-import { IEffectFunction } from './effect';
+import type { IEffectFunction } from './effect';
 
 type IEffects = Set<IEffectFunction>;
 type ITargetMap = WeakMap<any, IEffectsMap>;

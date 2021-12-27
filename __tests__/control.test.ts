@@ -73,7 +73,7 @@ describe('effect controls', () => {
 		expect(mock).toHaveBeenCalledTimes(3);
 
 		isActive = toggle();
-		expect(isActive).toEqual(false);
+		expect(isActive).toBe(false);
 
 		r.x = 22;
 		r.y = 22;
@@ -81,7 +81,7 @@ describe('effect controls', () => {
 		expect(mock).toHaveBeenCalledTimes(3);
 
 		isActive = toggle();
-		expect(isActive).toEqual(true);
+		expect(isActive).toBe(true);
 
 		r.x = 33;
 		r.y = 33;

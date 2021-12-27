@@ -45,7 +45,7 @@ export function run(effect: IEffectFunction) {
 		return;
 	}
 
-	if (effectStack.indexOf(effect) === -1) {
+	if (!effectStack.includes(effect)) {
 		cleanup(effect);
 
 		// using try / catch here allows us to both return the effect handler's return value

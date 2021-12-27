@@ -23,8 +23,8 @@ export function effect(handler: () => void, opts: IEffectOptions = {}) {
 
 	const newEffect: IEffectFunction = {
 		active: !lazy,
+		handler,
 		lazy: !!lazy,
-		handler: handler,
 		refs: []
 	};
 
@@ -33,15 +33,6 @@ export function effect(handler: () => void, opts: IEffectOptions = {}) {
 	}
 
 	return {
-		/**
-		 * Stop an active effect
-		 *
-		 * @public
-		 */
-		stop: () => {
-			stop(newEffect);
-		},
-
 		/**
 		 * Start an inactive effect
 		 *
@@ -53,6 +44,15 @@ export function effect(handler: () => void, opts: IEffectOptions = {}) {
 			}
 
 			start(newEffect);
+		},
+
+		/**
+		 * Stop an active effect
+		 *
+		 * @public
+		 */
+		stop: () => {
+			stop(newEffect);
 		},
 
 		/**
