@@ -1,4 +1,4 @@
-import { resonant, effect, revokes } from '../src';
+import { resonant, effect } from '../src';
 
 import { forMocks } from './utils';
 
@@ -266,8 +266,10 @@ describe('resonant', () => {
 			mocks[0]();
 
 			if (r.x.y.z === 12) {
-				// eslint-disable-next-line no-console
-				console.log('trigger');
+				if (process.env.TEST_DEV) {
+					// eslint-disable-next-line no-console
+					console.log('trigger');
+				}
 			}
 
 			if (r.a) {
@@ -411,28 +413,6 @@ describe('resonant', () => {
 		expect(mock2).toHaveBeenCalledTimes(1);
 	});
 
-	it('revokes a resonant value', () => {
-		const mock = jest.fn();
-		const r = resonant({ x: 1, y: 1 });
-
-		effect(() => {
-			r.x;
-			mock();
-		});
-
-		r.x = 11;
-
-		const revoke = revokes.get(r);
-
-		revoke?.();
-
-		expect(() => {
-			r.x = 22;
-		}).toThrow("Cannot perform 'set' on a proxy that has been revoked");
-
-		expect(mock).toHaveBeenCalledTimes(2);
-	});
-
 	it('triggers when deleting reactive properties', () => {
 		const mock = jest.fn();
 		const r = resonant({
@@ -482,6 +462,4 @@ describe('resonant', () => {
 
 		expect(mock2).toHaveBeenCalledTimes(1);
 	});
-
-	it.todo('skips initial effect invocation if passed opts.lazy');
 });

@@ -8,12 +8,6 @@
 
 |  Function | Description |
 |  --- | --- |
-|  [effect(handler)](./resonant.effect.md) | Create a resonant effect. All get / set operations within the handler will be tracked. An effect is run upon initialization, and subsequent to any mutations to its dependencies. |
-|  [resonant(target)](./resonant.resonant.md) | Make an object resonant. All object properties will be eligible dependencies for an effect. |
-
-## Variables
-
-|  Variable | Description |
-|  --- | --- |
-|  [revokes](./resonant.revokes.md) | A map of revoke handlers. Pass in a proxy reference to retrieve its corresponding handler. |
+|  [effect(handler, opts)](./resonant.effect.md) | Create a resonant effect. All get / set operations within the handler will be tracked. An effect is run upon initialization, and subsequent to any mutations to its dependencies. |
+|  [resonant(target)](./resonant.resonant.md) | Add resonance to a plain object. All object properties will be eligible dependencies for an effect. |
 
