@@ -13,7 +13,9 @@ Reactive effects with automatic dependency management, caching, and leak-free fi
 - [Install](#install)
   - [Supported Environments](#support)
 - [Documentation](#docs)
-
+  - [Creating an Effect](#docs_effect)
+  - [Starting and Stopping an Effect](#docs_control)
+  - [Deferred Effects](#docs_defer)
 
 ## <a name="install"></a> Installation
 
@@ -39,9 +41,13 @@ import { resonant, effect } from 'resonant';
 
 ## <a name="docs"></a> Documentation
 
-Inspired by React's `useEffect` and Vue's `watchEffect`, `resonant` is a compact utility library that mitigates the inherent burdens of managing observable data, including dependency tracking; caching and cache invalidation; and object dereferencing and finalization.
+Inspired by React's `useEffect` and Vue's `watchEffect`, `resonant` is a compact utility library that mitigates the overhead of managing observable data, such as dependency tracking; caching and cache invalidation; and object dereferencing and finalization.
 
-In `resonant`, an effect is a computation that is automatically invoked any time its reactive state changes.
+In `resonant`, an effect is a computation that is automatically invoked any time its reactive state changes. An effect's reactive state is any state that is accessed inside the effect body (specifically, the function passed to the `effect` initializer). A deterministic heuristic follows that any data access that triggers getters will be visible to and therefore tracked by the effect.
+
+This reactive state 'resonates', hence `resonant`.
+
+###  <a name="docs_effect"></a> Creating an Effect
 
 To create an effect, you must first make the target object (the effect state) reactive with the `resonant` function:
 
@@ -56,7 +62,7 @@ const plainObject = {
 const r = resonant(plainObject);
 ```
 
-Now, `r` is equipped with deep reactivity. All get / set operations will trigger any effects that happen to be observing the data.
+`r` is now equipped with deep reactivity. All getters / setters will trigger any effects that happen to be observing the data.
 
 Let's create an effect:
 
@@ -77,9 +83,9 @@ effect(() => {
 });
 ```
 
-The effect will be invoked immediately. Next, the effect is cached and tracks `r` as a reactive dependency. Any time `r.x` or `r.y` change, the effect will run.
+The effect will be invoked immediately. Next, the effect is cached and tracks `r` as a reactive dependency. Any time `r.x` or `r.y` is mutated, the effect will run.
 
-This works with branching and nested conditionals; if the effect encounters new properties by way of conditional logic, it tracks them as dependencies.
+This paradigm works with branching and nested conditionals; if the effect encounters new properties by way of conditional logic, it tracks them as dependencies.
 
 ```ts
 const r = resonant({
@@ -106,20 +112,120 @@ r.x.y.k = 1;
 // the effect will see the second condition and begin tracking `r.x.y.z`
 ```
 
-`resonant` uses weak references; deleted properties to which there are no references will be finalized so they may be garbage collected, as will all of that property's dependencies and effects. Finally, to nullify a resonant object's reactivity, use the `revokes` store:
+Effect dependencies are tracked lazily; the effect only ever cares about resonant data that it can see.
+
+`resonant` uses weak references; deleted properties to which there are no references will be finalized so they may be garbage collected, as will all of that property's dependencies and effects.
+
+###  <a name="docs_control"></a> Starting and Stopping an Effect
+
+To control an effect, each effect initializer returns unique `stop`, `start`, and `toggle` handlers. These functions are used to pause, resume, or toggle the effect's active state.
+
+Use `stop` to pause an effect. The effect will not run during this period. Stopping an effect flushes its dependency cache, so subsequent `start` or `toggle` calls are akin to creating the effect anew.
 
 ```ts
-import { resonant, effect, revokes } from 'resonant';
+import { resonant, effect } from 'resonant';
 
-const r = resonant({...});
+const r = resonant({ x: 1 });
 
-effect(() => {
-  ...
+let c = 0;
+const { stop } = effect(() => {
+  c += r.x;
 });
 
-const revoke = revokes.get(r);
+// initial run - `c` == 1
 
-revoke();
+r.x++;
+
+// trigger - `c` == 3
+
+stop();
+
+r.x++;
+
+// `c` == 3
 ```
 
-Full documentation can be found [here](https://matthewzito.github.io/resonant/resonant.html)
+Use `start` to transition the effect to an active state. `start` is idempotent; if the effect is already active, invoking `start` will *not* immediately trigger the effect. Otherwise, `start` - like instantiating a new effect - will run the effect immediately.
+
+```ts
+import { resonant, effect } from 'resonant';
+
+const r = resonant({ x: 1 });
+let c = 0;
+
+const { stop, start } = effect(() => {
+  c += r.x;
+});
+// initial run - r.x == 1, c == 1
+
+r.x++;
+// r.x == 2, c == 3
+
+stop();
+
+r.x++;
+// r.x == 3, c == 3
+
+start();
+// initial run - r.x == 3, c == 6
+
+r.x++;
+// r.x == 4, c == 7
+```
+
+Use `toggle` to toggle the effect's active state. Toggle invokes the appropriate `start` or `stop` handler and returns a boolean indicating whether the effect's state is active.
+
+```ts
+import { resonant, effect } from 'resonant';
+
+const r = resonant({ x: 1 });
+let c = 0;
+let isActive = true;
+
+const { toggle } = effect(() => {
+  c += r.x;
+});
+// initial run - r.x == 1, c == 1
+
+r.x++;
+// r.x == 2, c == 3
+
+isActive = toggle();
+// isActive == false
+
+r.x++;
+// r.x == 3, c == 3
+
+isActive = toggle();
+// isActive == true
+// initial run - r.x == 3, c == 6
+
+r.x++;
+// r.x == 4, c == 7
+```
+
+###  <a name="docs_defer"></a> Deferred Effects
+
+Effects may be initialized lazily with the `lazy` option. Passing this optional flag to the `effect` initializer will initialize the effect in an inactive state. The effect will *not* run immediately; either the effect's `start` or `toggle` handler *must be invoked before the effect can trigger*.
+
+```ts
+import { resonant, effect } from 'resonant';
+
+const r = resonant({ x: 1 });
+let c = 0;
+
+const { start } = effect(() => {
+  c += r.x;
+}, { lazy: true });
+// no initial run - r.x == 1, c == 0
+
+r.x++;
+// r.x == 2, c == 0
+
+start();
+
+r.x++;
+// r.x == 3, c == 3
+```
+
+Full documentation and type signatures can be found [here](https://matthewzito.github.io/resonant/resonant.html)

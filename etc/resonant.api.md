@@ -4,16 +4,17 @@
 
 ```ts
 
+// Warning: (ae-forgotten-export) The symbol "IEffectOptions" needs to be exported by the entry point index.d.ts
+//
 // @public
-export function effect(handler: () => void): void;
+export function effect(handler: () => void, opts?: IEffectOptions): {
+    start: () => void;
+    stop: () => void;
+    toggle: () => boolean;
+};
 
 // @public
 export function resonant<T extends Record<any, any>>(target: T): T;
-
-// Warning: (ae-forgotten-export) The symbol "IRevokeHandler" needs to be exported by the entry point index.d.ts
-//
-// @public
-export const revokes: WeakMap<Record<any, any>, IRevokeHandler>;
 
 // (No @packageDocumentation comment for this package)
 

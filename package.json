@@ -31,7 +31,7 @@
     "prerelease": "npm pack && tar -xvzf *.tgz && rimraf package *.tgz",
     "semantic-release": "semantic-release",
     "test": "jest --bail --coverage __tests__",
-    "test:dev": "cross-env TEST_DEV=1 jest --watch"
+    "test:dev": "cross-env TEST_DEV=1 jest --watchAll"
   },
   "lint-staged": {
     "src/**/*.ts": [

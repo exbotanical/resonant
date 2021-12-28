@@ -38,10 +38,7 @@ export function start(effect: IEffectFunction) {
  * @internal
  */
 export function run(effect: IEffectFunction) {
-	/* istanbul ignore if */
 	if (!effect.active) {
-		effect.handler();
-
 		return;
 	}
 

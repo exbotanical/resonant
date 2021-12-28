@@ -89,6 +89,39 @@ describe('effect controls', () => {
 		expect(mock).toHaveBeenCalledTimes(6);
 	});
 
+	it('start and stop are each idempotent', () => {
+		const mock = jest.fn();
+		const r = resonant({ x: 1 });
+
+		const { start, stop } = effect(() => {
+			r.x;
+			mock();
+		});
+
+		expect(mock).toHaveBeenCalledTimes(1);
+
+		r.x++;
+		expect(mock).toHaveBeenCalledTimes(2);
+
+		start();
+		expect(mock).toHaveBeenCalledTimes(2);
+
+		r.x++;
+		expect(mock).toHaveBeenCalledTimes(3);
+
+		stop();
+		expect(mock).toHaveBeenCalledTimes(3);
+
+		r.x++;
+		expect(mock).toHaveBeenCalledTimes(3);
+
+		stop();
+		expect(mock).toHaveBeenCalledTimes(3);
+
+		r.x++;
+		expect(mock).toHaveBeenCalledTimes(3);
+	});
+
 	it('defers initial effect invocation to the `start` handler when passed opts.lazy', () => {
 		const mock = jest.fn();
 		const r = resonant({ x: 1, y: 1 });
@@ -124,38 +157,5 @@ describe('effect controls', () => {
 			operation();
 			expect(mock).toHaveBeenCalledTimes(invocations);
 		}
-	});
-
-	it('start and stop are each idempotent', () => {
-		const mock = jest.fn();
-		const r = resonant({ x: 1 });
-
-		const { start, stop } = effect(() => {
-			r.x;
-			mock();
-		});
-
-		expect(mock).toHaveBeenCalledTimes(1);
-
-		r.x++;
-		expect(mock).toHaveBeenCalledTimes(2);
-
-		start();
-		expect(mock).toHaveBeenCalledTimes(2);
-
-		r.x++;
-		expect(mock).toHaveBeenCalledTimes(3);
-
-		stop();
-		expect(mock).toHaveBeenCalledTimes(3);
-
-		r.x++;
-		expect(mock).toHaveBeenCalledTimes(3);
-
-		stop();
-		expect(mock).toHaveBeenCalledTimes(3);
-
-		r.x++;
-		expect(mock).toHaveBeenCalledTimes(3);
 	});
 });

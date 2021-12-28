@@ -4,7 +4,7 @@
 
 ## resonant() function
 
-Make an object resonant. All object properties will be eligible dependencies for an effect.
+Add resonance to a plain object. All object properties will be eligible dependencies for an effect.
 
 <b>Signature:</b>
 

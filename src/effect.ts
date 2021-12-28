@@ -5,9 +5,20 @@ interface IEffectOptions {
 }
 
 export interface IEffectFunction {
+	/**
+	 * The current effect state. Determines whether its handler is invoked upon initialization,
+	 * and manages its control state.
+	 */
 	active: boolean;
-	lazy: boolean;
+
+	/**
+	 * The effect computation
+	 */
 	handler: () => void;
+
+	/**
+	 * References to the effect's dependencies
+	 */
 	refs: Set<IEffectFunction>[];
 }
 
@@ -24,13 +35,10 @@ export function effect(handler: () => void, opts: IEffectOptions = {}) {
 	const newEffect: IEffectFunction = {
 		active: !lazy,
 		handler,
-		lazy: !!lazy,
 		refs: []
 	};
 
-	if (!lazy) {
-		run(newEffect);
-	}
+	run(newEffect);
 
 	return {
 		/**
@@ -39,10 +47,6 @@ export function effect(handler: () => void, opts: IEffectOptions = {}) {
 		 * @public
 		 */
 		start: () => {
-			if (newEffect.lazy) {
-				newEffect.lazy = false;
-			}
-
 			start(newEffect);
 		},
 

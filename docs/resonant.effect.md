@@ -9,7 +9,11 @@ Create a resonant effect. All get / set operations within the handler will be tr
 <b>Signature:</b>
 
 ```typescript
-export declare function effect(handler: () => void): void;
+export declare function effect(handler: () => void, opts?: IEffectOptions): {
+    start: () => void;
+    stop: () => void;
+    toggle: () => boolean;
+};
 ```
 
 ## Parameters
@@ -17,8 +21,9 @@ export declare function effect(handler: () => void): void;
 |  Parameter | Type | Description |
 |  --- | --- | --- |
 |  handler | () =&gt; void |  |
+|  opts | IEffectOptions |  |
 
 <b>Returns:</b>
 
-void
+{ start: () =&gt; void; stop: () =&gt; void; toggle: () =&gt; boolean; }
 
