@@ -30,8 +30,8 @@
     "lint": "eslint --ext .js,.ts,.json --fix .",
     "prerelease": "npm pack && tar -xvzf *.tgz && rimraf package *.tgz",
     "semantic-release": "semantic-release",
-    "test": "vitest run --coverage",
-    "test:dev": "vitest dev"
+    "test": "vitest --config __tests__/vitest.config.ts run --coverage",
+    "test:dev": "vitest --config __tests__/vitest.config.ts dev"
   },
   "lint-staged": {
     "src/**/*.ts": [
