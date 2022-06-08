@@ -1,20 +1,20 @@
-import type { IEffectFunction } from './effect'
+import type { EffectFunction } from './effect'
 
-type IEffects = Set<IEffectFunction>
-type ITargetMap = WeakMap<any, IEffectsMap>
+type Effects = Set<EffectFunction>
+type TargetMap = WeakMap<any, EffectsMap>
 
-export type IEffectsMap = Map<PropertyKey, IEffects>
+export type EffectsMap = Map<PropertyKey, Effects>
 
 /**
  * A map of all tracked targets and their dependencies
  *
  * @internal
  */
-export const targetMap: ITargetMap = new WeakMap()
+export const targetMap: TargetMap = new WeakMap()
 
 /**
  * A stack for tracking active effects
  *
  * @internal
  */
-export const effectStack: (IEffectFunction | undefined)[] = []
+export const effectStack: (EffectFunction | undefined)[] = []

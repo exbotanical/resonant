@@ -1,7 +1,7 @@
 import { cleanup } from './scheduler'
 import { effectStack } from './state'
 
-import type { IEffectFunction } from './effect'
+import type { EffectFunction } from './effect'
 
 /**
  * Remove all effect dependencies if active, then stop the effect
@@ -9,7 +9,7 @@ import type { IEffectFunction } from './effect'
  *
  * @internal
  */
-export function stop(effect: IEffectFunction) {
+export function stop(effect: EffectFunction) {
   if (effect.active) {
     cleanup(effect)
   }
@@ -23,7 +23,7 @@ export function stop(effect: IEffectFunction) {
  *
  * @internal
  */
-export function start(effect: IEffectFunction) {
+export function start(effect: EffectFunction) {
   if (!effect.active) {
     effect.active = true
 
@@ -37,7 +37,7 @@ export function start(effect: IEffectFunction) {
  *
  * @internal
  */
-export function run(effect: IEffectFunction) {
+export function run(effect: EffectFunction) {
   if (!effect.active) {
     return
   }

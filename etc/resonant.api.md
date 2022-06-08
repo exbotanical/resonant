@@ -4,10 +4,10 @@
 
 ```ts
 
-// Warning: (ae-forgotten-export) The symbol "IEffectOptions" needs to be exported by the entry point index.d.ts
+// Warning: (ae-forgotten-export) The symbol "EffectOptions" needs to be exported by the entry point index.d.ts
 //
 // @public
-export function effect(handler: () => void, opts?: IEffectOptions): {
+export function effect(handler: () => void, opts?: EffectOptions): {
     start: () => void;
     stop: () => void;
     toggle: () => boolean;

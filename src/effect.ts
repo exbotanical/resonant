@@ -1,10 +1,10 @@
 import { run, start, stop } from './runner'
 
-interface IEffectOptions {
+interface EffectOptions {
   lazy?: boolean
 }
 
-export interface IEffectFunction {
+export interface EffectFunction {
   /**
    * The current effect state. Determines whether its handler is invoked upon initialization,
    * and manages its control state.
@@ -19,7 +19,7 @@ export interface IEffectFunction {
   /**
    * References to the effect's dependencies
    */
-  refs: Set<IEffectFunction>[]
+  refs: Set<EffectFunction>[]
 }
 
 /**
@@ -29,10 +29,10 @@ export interface IEffectFunction {
  *
  * @public
  */
-export function effect(handler: () => void, opts: IEffectOptions = {}) {
+export function effect(handler: () => void, opts: EffectOptions = {}) {
   const { lazy } = opts
 
-  const newEffect: IEffectFunction = {
+  const newEffect: EffectFunction = {
     active: !lazy,
     handler,
     refs: [],

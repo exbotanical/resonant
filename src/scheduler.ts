@@ -1,8 +1,8 @@
 import { run } from './runner'
 import { effectStack, targetMap } from './state'
 
-import type { IEffectFunction } from './effect'
-import type { IEffectsMap } from './state'
+import type { EffectFunction } from './effect'
+import type { EffectsMap } from './state'
 
 /**
  * Delete all auxillary effect dependencies of a given effect
@@ -10,7 +10,7 @@ import type { IEffectsMap } from './state'
  *
  * @internal
  */
-export function cleanup(effect: IEffectFunction) {
+export function cleanup(effect: EffectFunction) {
   const { refs } = effect
 
   if (refs.length) {
@@ -37,12 +37,12 @@ export function track<T>(target: T, key: PropertyKey) {
   if (activeEffect) {
     let effectsMap = targetMap.get(target)
     if (!effectsMap) {
-      targetMap.set(target, (effectsMap = new Map() as IEffectsMap))
+      targetMap.set(target, (effectsMap = new Map() as EffectsMap))
     }
 
     let effects = effectsMap.get(key)
     if (!effects) {
-      effectsMap.set(key, (effects = new Set<IEffectFunction>()))
+      effectsMap.set(key, (effects = new Set<EffectFunction>()))
     }
 
     if (!effects.has(activeEffect)) {
@@ -69,7 +69,7 @@ export function trigger(target: any, key: PropertyKey) {
   // this is necessary to prevent infinite recursion
   // if we run `cleanup` *and* run the effects as we iterate `effectsMap`, we'll
   // end up invoking `run` and end up back here all over again
-  const scheduled = new Set<IEffectFunction>()
+  const scheduled = new Set<EffectFunction>()
 
   effectsMap.get(key)?.forEach(effect => {
     scheduled.add(effect)
