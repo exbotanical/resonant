@@ -1,7 +1,5 @@
 {
-  "include": [
-    "src"
-  ],
+	"include": ["."],
   "compilerOptions": {
 		"composite": true,
 		"rootDir": "src",
@@ -10,6 +8,7 @@
     "emitDeclarationOnly": true,
     "module": "ESNext",
     "lib": ["ESNext"],
+		"types": ["node", "vitest/globals"],
     "strict": true,
     "moduleResolution": "node",
     "forceConsistentCasingInFileNames": true,

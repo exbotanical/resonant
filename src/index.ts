@@ -1,2 +1,2 @@
-export { effect } from './effect';
-export { resonant } from './resonant';
+export { effect } from './effect'
+export { resonant } from './resonant'

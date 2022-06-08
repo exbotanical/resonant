@@ -1,8 +1,8 @@
-import { run } from './runner';
-import { effectStack, targetMap } from './state';
+import { run } from './runner'
+import { effectStack, targetMap } from './state'
 
-import type { IEffectFunction } from './effect';
-import type { IEffectsMap } from './state';
+import type { IEffectFunction } from './effect'
+import type { IEffectsMap } from './state'
 
 /**
  * Delete all auxillary effect dependencies of a given effect
@@ -11,16 +11,16 @@ import type { IEffectsMap } from './state';
  * @internal
  */
 export function cleanup(effect: IEffectFunction) {
-	const { refs } = effect;
+  const { refs } = effect
 
-	if (refs.length) {
-		for (const ref of refs) {
-			ref.delete(effect);
-		}
-	}
+  if (refs.length) {
+    for (const ref of refs) {
+      ref.delete(effect)
+    }
+  }
 
-	// prevent empty sets from accumulating
-	refs.length = 0;
+  // prevent empty sets from accumulating
+  refs.length = 0
 }
 
 /**
@@ -31,26 +31,25 @@ export function cleanup(effect: IEffectFunction) {
  * @internal
  */
 export function track<T>(target: T, key: PropertyKey) {
-	// grab the last run effect - this is the one in which the resonant property is being tracked
-	const activeEffect = effectStack[effectStack.length - 1];
+  // grab the last run effect - this is the one in which the resonant property is being tracked
+  const activeEffect = effectStack[effectStack.length - 1]
 
-	 
-	if (activeEffect) {
-		let effectsMap = targetMap.get(target);
-		if (!effectsMap) {
-			targetMap.set(target, (effectsMap = new Map() as IEffectsMap));
-		}
+  if (activeEffect) {
+    let effectsMap = targetMap.get(target)
+    if (!effectsMap) {
+      targetMap.set(target, (effectsMap = new Map() as IEffectsMap))
+    }
 
-		let effects = effectsMap.get(key);
-		if (!effects) {
-			effectsMap.set(key, (effects = new Set<IEffectFunction>()));
-		}
+    let effects = effectsMap.get(key)
+    if (!effects) {
+      effectsMap.set(key, (effects = new Set<IEffectFunction>()))
+    }
 
-		if (!effects.has(activeEffect)) {
-			effects.add(activeEffect);
-			activeEffect.refs.push(effects);
-		}
-	}
+    if (!effects.has(activeEffect)) {
+      effects.add(activeEffect)
+      activeEffect.refs.push(effects)
+    }
+  }
 }
 
 /**
@@ -61,20 +60,20 @@ export function track<T>(target: T, key: PropertyKey) {
  * @internal
  */
 export function trigger(target: any, key: PropertyKey) {
-	const effectsMap = targetMap.get(target);
+  const effectsMap = targetMap.get(target)
 
-	if (!effectsMap) {
-		return;
-	}
+  if (!effectsMap) {
+    return
+  }
 
-	// this is necessary to prevent infinite recursion
-	// if we run `cleanup` *and* run the effects as we iterate `effectsMap`, we'll
-	// end up invoking `run` and end up back here all over again
-	const scheduled = new Set<IEffectFunction>();
+  // this is necessary to prevent infinite recursion
+  // if we run `cleanup` *and* run the effects as we iterate `effectsMap`, we'll
+  // end up invoking `run` and end up back here all over again
+  const scheduled = new Set<IEffectFunction>()
 
-	effectsMap.get(key)?.forEach((effect) => {
-		scheduled.add(effect);
-	});
+  effectsMap.get(key)?.forEach(effect => {
+    scheduled.add(effect)
+  })
 
-	scheduled.forEach(run);
+  scheduled.forEach(run)
 }

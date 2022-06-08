@@ -1,3 +1,3 @@
 export function isObject(val: unknown): val is Record<any, any> {
-	return val !== null && typeof val === 'object';
+  return val !== null && typeof val === 'object'
 }

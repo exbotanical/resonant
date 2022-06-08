@@ -1,6 +1,1 @@
-useTabs: true
-singleQuote: true
-quoteProps: "consistent"
-trailingComma: "none"
-arrowParens: "always"
-printWidth: 80
+"@magister_zito/prettier-config"

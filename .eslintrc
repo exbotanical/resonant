@@ -2,17 +2,5 @@
 	"extends": [
 		"@magister_zito",
 		"prettier"
-	],
-	"ignorePatterns": [
-		".build",
-		"coverage"
-	],
-	"overrides": [
-		{
-			"files": ["**/*.ts"],
-			"parserOptions": {
-				"project": ["./tsconfig.json", "./__tests__/tsconfig.json"]
-			}
-		}
 	]
 }

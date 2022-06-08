@@ -1,25 +1,25 @@
-import { run, start, stop } from './runner';
+import { run, start, stop } from './runner'
 
 interface IEffectOptions {
-	lazy?: boolean;
+  lazy?: boolean
 }
 
 export interface IEffectFunction {
-	/**
-	 * The current effect state. Determines whether its handler is invoked upon initialization,
-	 * and manages its control state.
-	 */
-	active: boolean;
+  /**
+   * The current effect state. Determines whether its handler is invoked upon initialization,
+   * and manages its control state.
+   */
+  active: boolean
 
-	/**
-	 * The effect computation
-	 */
-	handler: () => void;
+  /**
+   * The effect computation
+   */
+  handler: () => void
 
-	/**
-	 * References to the effect's dependencies
-	 */
-	refs: Set<IEffectFunction>[];
+  /**
+   * References to the effect's dependencies
+   */
+  refs: Set<IEffectFunction>[]
 }
 
 /**
@@ -30,46 +30,46 @@ export interface IEffectFunction {
  * @public
  */
 export function effect(handler: () => void, opts: IEffectOptions = {}) {
-	const { lazy } = opts;
+  const { lazy } = opts
 
-	const newEffect: IEffectFunction = {
-		active: !lazy,
-		handler,
-		refs: []
-	};
+  const newEffect: IEffectFunction = {
+    active: !lazy,
+    handler,
+    refs: [],
+  }
 
-	run(newEffect);
+  run(newEffect)
 
-	return {
-		/**
-		 * Start an inactive effect
-		 *
-		 * @public
-		 */
-		start: () => {
-			start(newEffect);
-		},
+  return {
+    /**
+     * Start an inactive effect
+     *
+     * @public
+     */
+    start: () => {
+      start(newEffect)
+    },
 
-		/**
-		 * Stop an active effect
-		 *
-		 * @public
-		 */
-		stop: () => {
-			stop(newEffect);
-		},
+    /**
+     * Stop an active effect
+     *
+     * @public
+     */
+    stop: () => {
+      stop(newEffect)
+    },
 
-		/**
-		 * Toggle the effect's active status
-		 *
-		 * @returns A boolean indicating whether the effect is active
-		 *
-		 * @public
-		 */
-		toggle: () => {
-			newEffect.active ? stop(newEffect) : start(newEffect);
+    /**
+     * Toggle the effect's active status
+     *
+     * @returns A boolean indicating whether the effect is active
+     *
+     * @public
+     */
+    toggle: () => {
+      newEffect.active ? stop(newEffect) : start(newEffect)
 
-			return newEffect.active;
-		}
-	};
+      return newEffect.active
+    },
+  }
 }

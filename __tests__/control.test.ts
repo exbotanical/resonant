@@ -1,161 +1,165 @@
-import { effect, resonant } from '../src';
+import { effect, resonant } from '../src'
 
 describe('effect controls', () => {
-	it('stops an active effect', () => {
-		const mock = jest.fn();
-		const r = resonant({ x: 1, y: 1 });
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
 
-		const { stop } = effect(() => {
-			r.x;
-			r.y;
-			mock();
-		});
+  it('stops an active effect', () => {
+    const mock = vi.fn()
+    const r = resonant({ x: 1, y: 1 })
 
-		r.x = 11;
+    const { stop } = effect(() => {
+      r.x
+      r.y
+      mock()
+    })
 
-		expect(mock).toHaveBeenCalledTimes(2);
+    r.x = 11
 
-		stop();
+    expect(mock).toHaveBeenCalledTimes(2)
 
-		r.x = 22;
-		r.y = 22;
+    stop()
 
-		expect(mock).toHaveBeenCalledTimes(2);
-	});
+    r.x = 22
+    r.y = 22
 
-	it('starts an inactive effect', () => {
-		const mock = jest.fn();
-		const r = resonant({ x: 1, y: 1 });
+    expect(mock).toHaveBeenCalledTimes(2)
+  })
 
-		const { stop, start } = effect(() => {
-			r.x;
-			r.y;
-			mock();
-		});
+  it('starts an inactive effect', () => {
+    const mock = vi.fn()
+    const r = resonant({ x: 1, y: 1 })
 
-		r.x = 11;
-		r.y = 11;
+    const { stop, start } = effect(() => {
+      r.x
+      r.y
+      mock()
+    })
 
-		expect(mock).toHaveBeenCalledTimes(3);
+    r.x = 11
+    r.y = 11
 
-		stop();
+    expect(mock).toHaveBeenCalledTimes(3)
 
-		r.x = 22;
-		r.y = 22;
+    stop()
 
-		expect(mock).toHaveBeenCalledTimes(3);
+    r.x = 22
+    r.y = 22
 
-		start();
+    expect(mock).toHaveBeenCalledTimes(3)
 
-		expect(mock).toHaveBeenCalledTimes(4);
+    start()
 
-		r.x = 33;
-		r.y = 33;
+    expect(mock).toHaveBeenCalledTimes(4)
 
-		expect(mock).toHaveBeenCalledTimes(6);
-	});
+    r.x = 33
+    r.y = 33
 
-	it("toggles an effect's active state", () => {
-		let isActive = true;
+    expect(mock).toHaveBeenCalledTimes(6)
+  })
 
-		const mock = jest.fn();
-		const r = resonant({ x: 1, y: 1 });
+  it("toggles an effect's active state", () => {
+    let isActive = true
 
-		const { toggle } = effect(() => {
-			r.x;
-			r.y;
-			mock();
-		});
+    const mock = vi.fn()
+    const r = resonant({ x: 1, y: 1 })
 
-		r.x = 11;
-		r.y = 11;
+    const { toggle } = effect(() => {
+      r.x
+      r.y
+      mock()
+    })
 
-		expect(mock).toHaveBeenCalledTimes(3);
+    r.x = 11
+    r.y = 11
 
-		isActive = toggle();
-		expect(isActive).toBe(false);
+    expect(mock).toHaveBeenCalledTimes(3)
 
-		r.x = 22;
-		r.y = 22;
+    isActive = toggle()
+    expect(isActive).toBe(false)
 
-		expect(mock).toHaveBeenCalledTimes(3);
+    r.x = 22
+    r.y = 22
 
-		isActive = toggle();
-		expect(isActive).toBe(true);
+    expect(mock).toHaveBeenCalledTimes(3)
 
-		r.x = 33;
-		r.y = 33;
+    isActive = toggle()
+    expect(isActive).toBe(true)
 
-		expect(mock).toHaveBeenCalledTimes(6);
-	});
+    r.x = 33
+    r.y = 33
 
-	it('start and stop are each idempotent', () => {
-		const mock = jest.fn();
-		const r = resonant({ x: 1 });
+    expect(mock).toHaveBeenCalledTimes(6)
+  })
 
-		const { start, stop } = effect(() => {
-			r.x;
-			mock();
-		});
+  it('start and stop are each idempotent', () => {
+    const mock = vi.fn()
+    const r = resonant({ x: 1 })
 
-		expect(mock).toHaveBeenCalledTimes(1);
+    const { start, stop } = effect(() => {
+      r.x
+      mock()
+    })
 
-		r.x++;
-		expect(mock).toHaveBeenCalledTimes(2);
+    expect(mock).toHaveBeenCalledTimes(1)
 
-		start();
-		expect(mock).toHaveBeenCalledTimes(2);
+    r.x++
+    expect(mock).toHaveBeenCalledTimes(2)
 
-		r.x++;
-		expect(mock).toHaveBeenCalledTimes(3);
+    start()
+    expect(mock).toHaveBeenCalledTimes(2)
 
-		stop();
-		expect(mock).toHaveBeenCalledTimes(3);
+    r.x++
+    expect(mock).toHaveBeenCalledTimes(3)
 
-		r.x++;
-		expect(mock).toHaveBeenCalledTimes(3);
+    stop()
+    expect(mock).toHaveBeenCalledTimes(3)
 
-		stop();
-		expect(mock).toHaveBeenCalledTimes(3);
+    r.x++
+    expect(mock).toHaveBeenCalledTimes(3)
 
-		r.x++;
-		expect(mock).toHaveBeenCalledTimes(3);
-	});
+    stop()
+    expect(mock).toHaveBeenCalledTimes(3)
 
-	it('defers initial effect invocation to the `start` handler when passed opts.lazy', () => {
-		const mock = jest.fn();
-		const r = resonant({ x: 1, y: 1 });
+    r.x++
+    expect(mock).toHaveBeenCalledTimes(3)
+  })
 
-		const { start, toggle } = effect(
-			() => {
-				r.x;
-				mock();
-			},
-			{ lazy: true }
-		);
+  it('defers initial effect invocation to the `start` handler when passed opts.lazy', () => {
+    const mock = vi.fn()
+    const r = resonant({ x: 1, y: 1 })
 
-		const update = () => {
-			r.x++;
-		};
+    const { start, toggle } = effect(
+      () => {
+        r.x
+        mock()
+      },
+      { lazy: true },
+    )
 
-		const tests: [() => void, number][] = [
-			// ON
-			[start, 1],
-			[update, 2],
-			// OFF
-			[toggle, 2],
-			[update, 2],
-			// ON
-			[toggle, 3],
-			[update, 4],
-			// ON
-			[start, 4],
-			[update, 5]
-		];
+    const update = () => {
+      r.x++
+    }
 
-		for (const [operation, invocations] of tests) {
-			operation();
-			expect(mock).toHaveBeenCalledTimes(invocations);
-		}
-	});
-});
+    const tests: [() => void, number][] = [
+      // ON
+      [start, 1],
+      [update, 2],
+      // OFF
+      [toggle, 2],
+      [update, 2],
+      // ON
+      [toggle, 3],
+      [update, 4],
+      // ON
+      [start, 4],
+      [update, 5],
+    ]
+
+    for (const [operation, invocations] of tests) {
+      operation()
+      expect(mock).toHaveBeenCalledTimes(invocations)
+    }
+  })
+})

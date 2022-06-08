@@ -1,5 +1,5 @@
-import { track, trigger } from './scheduler';
-import { isObject } from './utils';
+import { track, trigger } from './scheduler'
+import { isObject } from './utils'
 
 /**
  * Add resonance to a plain object.
@@ -9,47 +9,47 @@ import { isObject } from './utils';
  * @public
  */
 export function resonant<T extends Record<any, any>>(target: T) {
-	return new Proxy(target, {
-		deleteProperty(target, key) {
-			const hadKey = Reflect.has(target, key);
-			const result = Reflect.deleteProperty(target, key);
+  return new Proxy(target, {
+    deleteProperty(target, key) {
+      const hadKey = Reflect.has(target, key)
+      const result = Reflect.deleteProperty(target, key)
 
-			if (hadKey) {
-				trigger(target, key);
-			}
+      if (hadKey) {
+        trigger(target, key)
+      }
 
-			return result;
-		},
+      return result
+    },
 
-		get(target, key, receiver): T {
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-			const result: T[keyof T] = Reflect.get(target, key, receiver);
+    get(target, key, receiver): T {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      const result: T[keyof T] = Reflect.get(target, key, receiver)
 
-			// ensure we set nested objects and arrays and make them resonant
-			if (isObject(result)) {
-				track<T>(result, key);
+      // ensure we set nested objects and arrays and make them resonant
+      if (isObject(result)) {
+        track<T>(result, key)
 
-				return resonant(result);
-			}
+        return resonant(result)
+      }
 
-			track<T>(target, key);
+      track<T>(target, key)
 
-			return result;
-		},
+      return result
+    },
 
-		set(target, key, value, receiver) {
-			const oldVal = target[key as keyof typeof target];
-			const hadKey = Reflect.has(target, key);
-			const result = Reflect.set(target, key, value, receiver);
+    set(target, key, value, receiver) {
+      const oldVal = target[key as keyof typeof target]
+      const hadKey = Reflect.has(target, key)
+      const result = Reflect.set(target, key, value, receiver)
 
-			// replicate `length` accessors that trigger after setting an element
-			if (!hadKey && Array.isArray(target)) {
-				trigger(target, 'length');
-			} else if (!Object.is(oldVal, value)) {
-				trigger(target, key);
-			}
+      // replicate `length` accessors that trigger after setting an element
+      if (!hadKey && Array.isArray(target)) {
+        trigger(target, 'length')
+      } else if (!Object.is(oldVal, value)) {
+        trigger(target, key)
+      }
 
-			return result;
-		}
-	});
+      return result
+    },
+  })
 }
