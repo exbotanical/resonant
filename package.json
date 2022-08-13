@@ -6,9 +6,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/MatthewZito/resonant.git"
+    "url": "https://github.com/exbotanical/resonant.git"
   },
-  "author": "Matthew T Zito (goldmund)",
+  "author": "Matthew Zito <exbotanical@protonmail.com>",
   "files": [
     "dist/"
   ],
@@ -46,9 +46,9 @@
     ]
   },
   "bugs": {
-    "url": "https://github.com/MatthewZito/resonant/issues"
+    "url": "https://github.com/exbotanical/resonant/issues"
   },
-  "homepage": "https://github.com/MatthewZito/resonant#readme",
+  "homepage": "https://github.com/exbotanical/resonant#readme",
   "devDependencies": {
     "@babel/cli": "7.16.8",
     "@babel/core": "7.16.5",

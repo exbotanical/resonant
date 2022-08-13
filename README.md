@@ -1,8 +1,8 @@
 # resonant
 
-[![Coverage Status](https://coveralls.io/repos/github/MatthewZito/resonant/badge.svg?branch=master)](https://coveralls.io/github/MatthewZito/resonant?branch=master)
-[![Continuous Deployment](https://github.com/MatthewZito/resonant/actions/workflows/cd.yml/badge.svg)](https://github.com/MatthewZito/resonant/actions/workflows/cd.yml)
-[![Continuous Integration](https://github.com/MatthewZito/resonant/actions/workflows/ci.yml/badge.svg)](https://github.com/MatthewZito/resonant/actions/workflows/ci.yml)
+[![Coverage Status](https://coveralls.io/repos/github/exbotanical/resonant/badge.svg?branch=master)](https://coveralls.io/github/exbotanical/resonant?branch=master)
+[![Continuous Deployment](https://github.com/exbotanical/resonant/actions/workflows/cd.yml/badge.svg)](https://github.com/exbotanical/resonant/actions/workflows/cd.yml)
+[![Continuous Integration](https://github.com/exbotanical/resonant/actions/workflows/ci.yml/badge.svg)](https://github.com/exbotanical/resonant/actions/workflows/ci.yml)
 [![npm version](https://badge.fury.io/js/resonant.svg)](https://badge.fury.io/js/resonant)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -228,4 +228,4 @@ r.x++;
 // r.x == 3, c == 3
 ```
 
-Full documentation and type signatures can be found [here](https://matthewzito.github.io/resonant/resonant.html)
+Full documentation and type signatures can be found [here](https://exbotanical.github.io/resonant/resonant.html)

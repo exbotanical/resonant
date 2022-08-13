@@ -8,11 +8,11 @@ on:
 jobs:
 
   lint:
-    uses: MatthewZito/.github/.github/workflows/pnpm_script_run.yml@master
+    uses: exbotanical/.github/.github/workflows/pnpm_script_run.yml@master
     with:
       script_name: lint
 
   unit_test:
-    uses: MatthewZito/.github/.github/workflows/pnpm_script_run.yml@master
+    uses: exbotanical/.github/.github/workflows/pnpm_script_run.yml@master
     with:
       script_name: test
